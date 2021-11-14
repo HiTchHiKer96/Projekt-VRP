@@ -10,6 +10,7 @@ from graphics import *
 
 
 
+
 def loadData():
     file = open("dane.txt", "r", encoding="UTF-8")
     data = file.readlines()
@@ -326,6 +327,7 @@ def routeInfo(route):
 
 def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutations):
 
+    save = []
 
     allroutes = findRoutes(population, trucks, capacity)
     print("\npopulation:", len(allroutes), " trucks:", trucks, " capacity:", capacity)
@@ -412,6 +414,9 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
             print("DISTANCES:",info[1],"   TOTAL =", info[0], "km")
             print("CARGO LEFT:",info[2],"   TOTAL =",info[3],"\n")
 
+            save.append(allroutes[0])
+        
+
         currentgeneration -= 1
 
     print("\nNEW")
@@ -437,11 +442,12 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
         print(i)
 
 
-    return allroutes[0]
+    return save
 
 
-def graph(data):
-    #print(data)
+def graph(d):
+
+    data = d[-1]
     x = []
     y = []
     for i in data:
@@ -454,11 +460,7 @@ def graph(data):
             y[i].append(round( (6600-float(j[3])*120), 0))
 
 
-    #print(x)
-    #print(y)
-
-    win = GraphWin('Best Sollution', 1200, 800) # give title and dimensions
-    #win.setBackground("snow")
+    win = GraphWin('Best Sollution', 1200, 800, autoflush=False)
     colours = ["red","green","blue","yellow","lightblue","lightgreen","purple", "cyan", "gray", "pink"]
 
     for i in range(len(data)):
@@ -476,13 +478,75 @@ def graph(data):
     for i in range(len(data)):
         for j in range(len(data[i])-1):
             name = Text(Point(x[i][j],y[i][j]-10), data[i][j][0])
-            name.draw(win)
             name.setSize(10)
             name.setStyle("bold") 
+            name.draw(win)
 
     win.getMouse()
     win.close()
 
+
+def graphSlides(d):
+
+    win2 = GraphWin('Best of generations', 1200, 800, autoflush=False)
+    colours = ["red","green","blue","yellow","lightblue","lightgreen","purple", "cyan", "gray", "pink"]
+
+    while True:
+        for index in range(len(d)):
+            data = d[index]
+            x = []
+            y = []
+
+            road = routeInfo(data)[0]
+
+            for i in data:
+                x.append([])
+                y.append([])
+
+            for i in range(len(data)):
+                for j in data[i]:
+                    x[i].append(round( (float(j[4])*120)-1700, 0))
+                    y[i].append(round( (6600-float(j[3])*120), 0))
+
+            for item in win2.items[:]:
+                item.undraw()
+            win2.update()
+
+            for i in range(len(data)):
+                for j in range(len(data[i])-1):
+                    l = Line(Point(x[i][j],y[i][j]), Point(x[i][j+1],y[i][j+1])) 
+                    l.setWidth(3)
+                    l.setFill(colours[i])
+                    l.draw(win2)
+
+                    c = Circle(Point(x[i][j],y[i][j]), 5)
+                    c.setFill(colours[i])
+                    c.setOutline(colours[i])
+                    c.draw(win2)
+            
+            for i in range(len(data)):
+                for j in range(len(data[i])-1):
+                    name = Text(Point(x[i][j],y[i][j]-10), data[i][j][0])
+                    name.setSize(10)
+                    name.setStyle("bold") 
+                    name.draw(win2)
+            
+            t = "GENERATION: " + str((index+1)*10) + "   TOTAL DISTANCE: " + str(road) + " KM"
+            text = Text(Point(200,20), t)
+            text.setSize(10)
+            text.setStyle("bold")
+            text.draw(win2)
+
+            #win.getMouse()
+            win2.update()
+            time.sleep(0.5)
+        time.sleep(5)
+
+    
+   
+
+    #win.getMouse()
+    #win.close()
 
 trucks = 5
 capacity = 1000
@@ -496,6 +560,7 @@ best = geneticAlgorythm(population,trucks,capacity,generations,crosses,mutations
 t2 = time.time()
 print("\nTIME:",round(t2-t1,3), "s")
 graph(best)
+graphSlides(best)
 
 
 
