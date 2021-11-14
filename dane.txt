@@ -2,7 +2,7 @@ numer miasto towar szerokość długość
 0 Kraków 0 50.061 19.936
 1 Białystok 500 53.132 23.159
 2 Bielsko-Biała 50 49.822 19.044
-3 Chrzanów 400 50.993 16.930
+3 Chrzanów 400 50.993 19.402
 4 Gdańsk 200 54.361 18.628
 5 Gdynia 100 54.516 18.540
 6 Gliwice 40 50.294 18.665

@@ -5,6 +5,7 @@ import random
 import copy
 from geopy.distance import geodesic
 import geopy.distance
+from graphics import *
 
 
 
@@ -436,7 +437,51 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
         print(i)
 
 
+    return allroutes[0]
 
+
+def graph(data):
+    #print(data)
+    x = []
+    y = []
+    for i in data:
+        x.append([])
+        y.append([])
+
+    for i in range(len(data)):
+        for j in data[i]:
+            x[i].append(round( (float(j[4])*120)-1700, 0))
+            y[i].append(round( (6600-float(j[3])*120), 0))
+
+
+    #print(x)
+    #print(y)
+
+    win = GraphWin('Best Sollution', 1200, 800) # give title and dimensions
+    #win.setBackground("snow")
+    colours = ["red","green","blue","yellow","lightblue","lightgreen","purple", "cyan", "gray", "pink"]
+
+    for i in range(len(data)):
+        for j in range(len(data[i])-1):
+            l = Line(Point(x[i][j],y[i][j]), Point(x[i][j+1],y[i][j+1])) 
+            l.setWidth(3)
+            l.setFill(colours[i])
+            l.draw(win)
+
+            c = Circle(Point(x[i][j],y[i][j]), 5)
+            c.setFill(colours[i])
+            c.setOutline(colours[i])
+            c.draw(win)
+    
+    for i in range(len(data)):
+        for j in range(len(data[i])-1):
+            name = Text(Point(x[i][j],y[i][j]-10), data[i][j][0])
+            name.draw(win)
+            name.setSize(10)
+            name.setStyle("bold") 
+
+    win.getMouse()
+    win.close()
 
 
 trucks = 5
@@ -447,9 +492,10 @@ crosses = 10
 mutations = 5
 
 t1 = time.time()
-geneticAlgorythm(population,trucks,capacity,generations,crosses,mutations)
+best = geneticAlgorythm(population,trucks,capacity,generations,crosses,mutations)
 t2 = time.time()
-print("\nTIME:",round(t2-t1,3))
+print("\nTIME:",round(t2-t1,3), "s")
+graph(best)
 
 
 
