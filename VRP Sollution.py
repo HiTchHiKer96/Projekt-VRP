@@ -1,12 +1,9 @@
 from abc import abstractproperty
-import math
 import time
 import random
 import copy
-from geopy.distance import geodesic
-import geopy.distance
 from graphics import *
-
+from geopy import distance
 
 
 
@@ -27,32 +24,25 @@ def roadLength(x,y):
     #a = abs( x[0] - y[0] )
     #b = abs( x[1] - y[1] ) 
     #return round(math.sqrt( a**2 + b**2 ), 3)
-    dis = round(geopy.distance.distance(x,y).km, 3)
-    #dis = round(geodesic(x,y).km, 3)
+    dis = round(distance.distance(x,y).km, 3)
     return dis
 
 def findRoute(data, trucks, capacity):
 
-    startPoint = data[1]
-    #print(startPoint)  
+    startPoint = data[1] 
 
     locations = data[2:]
-    #print(locations)
 
     routes = []
     for i in range(trucks):
         routes.append( [[startPoint[1], 0, capacity, startPoint[3], startPoint[4]]] )
 
-    #print(routes)
 
     while len(locations) > 0:
-        #print("locations",len(locations))
         newcity = locations.pop(random.randint(0,len(locations)-1))
         truckNumber = random.randint(0,trucks-1)
-        #print(newcity)
 
         oldcity = routes[truckNumber][-1]
-        #print(oldcity)
 
         road = roadLength([float(oldcity[3]),float(oldcity[4])],[float(newcity[3]),float(newcity[4])])
         newcapacity = int(oldcity[2]) - int(newcity[2])
@@ -68,10 +58,8 @@ def findRoute(data, trucks, capacity):
                 if int(i[-1][2]) >= int(newcity[2]):
                     pass
                 else:
-                    error += 1
-            #print("err",error)     
+                    error += 1    
             if error == trucks:
-                #print("ERROR")
                 return "ERROR"
 
     for i in routes:
@@ -251,9 +239,7 @@ def mutation(r):
     if error == len(route):
         return "ERROR"
 
-    #print("MUTATE",routeInfo(route))
     randomcar = random.randint(0,len(route)-1)
-    #print("AAA",route[randomcar])
     while len(route[randomcar]) < 4:
         randomcar = random.randint(0,len(route)-1)
 
@@ -288,9 +274,6 @@ def mutation(r):
 
 def findRoutes(number, trucks, capacity):
     data = loadData()
-    #for i in data:
-        #print(i)
-
 
     allroutes = []
     for i in range(number):
@@ -368,11 +351,6 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
                     for i in range(trucks):
                         if info1[1][i] == 0.0 or info2[1][i] == 0.0 or info1[2][i] < 0 or info2[2][i] < 0 or info1[2][i] > capacity or info2[2][i] > capacity:
                             correct = 0
-                        
-
-            #print("crosses",currentcrosses)
-            #for i in newroutes:
-                #print(routeInfo(i))
 
 
             allroutes.append(newroutes[0])
@@ -409,12 +387,11 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
 
         if (currentgeneration-1)%10 == 0:
             print("gen:",generations-currentgeneration+1, )
-            #print(routeInfo(allroutes[0]))
             info = routeInfo(allroutes[0])
             print("DISTANCES:",info[1],"   TOTAL =", info[0], "km")
             print("CARGO LEFT:",info[2],"   TOTAL =",info[3],"\n")
 
-            save.append(allroutes[0])
+        save.append(allroutes[0])
         
 
         currentgeneration -= 1
@@ -445,7 +422,7 @@ def geneticAlgorythm(population, trucks, capacity, generations, crosses, mutatio
     return save
 
 
-def graph(d):
+def graph(d,wx,wy):
 
     data = d[-1]
     x = []
@@ -460,7 +437,8 @@ def graph(d):
             y[i].append(round( (6600-float(j[3])*120), 0))
 
 
-    win = GraphWin('Best Sollution', 1200, 800, autoflush=False)
+    win = GraphWin('Best Sollution', wx, wy, autoflush=False)
+    win.setCoords(0,750,1150,0)
     colours = ["red","green","blue","yellow","lightblue","lightgreen","purple", "cyan", "gray", "pink"]
 
     for i in range(len(data)):
@@ -481,14 +459,15 @@ def graph(d):
             name.setSize(10)
             name.setStyle("bold") 
             name.draw(win)
-
+    
     win.getMouse()
     win.close()
 
 
-def graphSlides(d):
+def graphSlides(d,wx,wy):
 
-    win2 = GraphWin('Best of generations', 1200, 800, autoflush=False)
+    win2 = GraphWin('Best of generations', wx, wy, autoflush=False)
+    win2.setCoords(0,750,1150,0)
     colours = ["red","green","blue","yellow","lightblue","lightgreen","purple", "cyan", "gray", "pink"]
 
     while True:
@@ -506,11 +485,11 @@ def graphSlides(d):
             for i in range(len(data)):
                 for j in data[i]:
                     x[i].append(round( (float(j[4])*120)-1700, 0))
-                    y[i].append(round( (6600-float(j[3])*120), 0))
+                    y[i].append(round( (6650-float(j[3])*120), 0))
 
             for item in win2.items[:]:
                 item.undraw()
-            win2.update()
+            
 
             for i in range(len(data)):
                 for j in range(len(data[i])-1):
@@ -531,38 +510,35 @@ def graphSlides(d):
                     name.setStyle("bold") 
                     name.draw(win2)
             
-            t = "GENERATION: " + str((index+1)*10) + "   TOTAL DISTANCE: " + str(road) + " KM"
-            text = Text(Point(200,20), t)
+            t = "GENERATION: " + str((index+1)) + "   TOTAL DISTANCE: " + str(road) + " KM"
+            text = Text(Point(1150/2,20), t)
             text.setSize(10)
             text.setStyle("bold")
             text.draw(win2)
 
-            #win.getMouse()
             win2.update()
-            time.sleep(0.5)
+            time.sleep(0.1)
         time.sleep(5)
 
-    
-   
 
-    #win.getMouse()
-    #win.close()
+
+
 
 trucks = 5
 capacity = 1000
+
 population = 100
-generations = 200
+generations = 250
 crosses = 10
 mutations = 5
+
+windowx = 1024
+windowy = 768
 
 t1 = time.time()
 best = geneticAlgorythm(population,trucks,capacity,generations,crosses,mutations)
 t2 = time.time()
 print("\nTIME:",round(t2-t1,3), "s")
-graph(best)
-graphSlides(best)
 
-
-
-
-
+graph(best,windowx,windowy)
+graphSlides(best,windowx,windowy)
